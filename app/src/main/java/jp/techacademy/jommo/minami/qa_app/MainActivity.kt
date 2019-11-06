@@ -144,6 +144,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
+
         // Firebase
         mDatabaseReference = FirebaseDatabase.getInstance().reference
 
@@ -158,6 +159,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
             intent.putExtra("question", mQuestionArrayList[position])
             startActivity(intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val navigationView = findViewById<NavigationView>(R.id.nav_view)
+
+        // 1:趣味を既定の選択とする
+        if(mGenre == 0) {
+            onNavigationItemSelected(navigationView.menu.getItem(0))
         }
     }
 
