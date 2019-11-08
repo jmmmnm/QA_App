@@ -1,5 +1,6 @@
 package jp.techacademy.jommo.minami.qa_app
 
+
 import android.content.Context
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -49,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
             } else {
 
                 // 失敗した場合
-                // エラーを表示する
+                // エラーを表示するZ
                 val view = findViewById<View>(android.R.id.content)
                 Snackbar.make(view, "アカウント作成に失敗しました", Snackbar.LENGTH_LONG).show()
 
