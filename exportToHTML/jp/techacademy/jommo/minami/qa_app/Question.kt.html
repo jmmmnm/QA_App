@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Question.kt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Question.kt</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<a name="l1"><span class="ln">1    </span></a><span class="s0">package </span><span class="s1">jp.techacademy.jommo.minami.qa_app 
+<a name="l2"><span class="ln">2    </span></a> 
+<a name="l3"><span class="ln">3    </span></a>import java.io.Serializable 
+<a name="l4"><span class="ln">4    </span></a>import java.util.ArrayList 
+<a name="l5"><span class="ln">5    </span></a> 
+<a name="l6"><span class="ln">6    </span></a></span><span class="s0">class </span><span class="s1">Question(</span><span class="s0">val </span><span class="s1">title: String, </span><span class="s0">val </span><span class="s1">body: String, </span><span class="s0">val </span><span class="s1">name: String, </span><span class="s0">val </span><span class="s1">uid: String, </span><span class="s0">val </span><span class="s1">questionUid: String, </span><span class="s0">val </span><span class="s1">genre: Int, bytes: ByteArray, </span><span class="s0">val </span><span class="s1">answers: ArrayList&lt;Answer&gt;) : Serializable { 
+<a name="l7"><span class="ln">7    </span></a>    </span><span class="s0">val </span><span class="s1">imageBytes: ByteArray 
+<a name="l8"><span class="ln">8    </span></a> 
+<a name="l9"><span class="ln">9    </span></a>    init { 
+<a name="l10"><span class="ln">10   </span></a>        imageBytes = bytes.clone() 
+<a name="l11"><span class="ln">11   </span></a>    } 
+<a name="l12"><span class="ln">12   </span></a>}</span></pre>
+</body>
+</html>
