@@ -24,6 +24,22 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
 
+
+    override fun onResume() {
+        super.onResume()
+
+
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user == null) {
+            favoButton.visibility = View.INVISIBLE
+        } else {
+            favoButton.visibility = View.VISIBLE
+        }
+
+    }
+
+
     private val mEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<String, String>
@@ -78,6 +94,9 @@ class QuestionDetailActivity : AppCompatActivity() {
         listView.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
 
+
+
+
         fab.setOnClickListener {
             // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser
@@ -94,8 +113,25 @@ class QuestionDetailActivity : AppCompatActivity() {
             }
         }
 
+        favoButton.setOnClickListener {
+
+
+            val dataBaseReference = FirebaseDatabase.getInstance().reference
+            val user = FirebaseAuth.getInstance().currentUser
+            val favoRef = dataBaseReference.child(Favorite).child(user!!.uid)
+
+            val data = HashMap<String,String>()
+            data[mQuestion.genre.toString()] = mQuestion.questionUid
+
+            favoRef.setValue(data)
+
+
+        }
+
         val dataBaseReference = FirebaseDatabase.getInstance().reference
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
     }
+
+
 }

@@ -17,7 +17,7 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        android:id="@+id/okini"
+        android:id="@+id/favoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
