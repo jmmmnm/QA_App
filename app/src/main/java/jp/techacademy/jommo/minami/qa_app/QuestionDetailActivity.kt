@@ -4,16 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.ListView
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_question_detail.*
 
 import java.util.HashMap
@@ -24,12 +21,26 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
 
+    val dataBaseReference = FirebaseDatabase.getInstance().reference
+
 
     override fun onResume() {
         super.onResume()
 
-
         val user = FirebaseAuth.getInstance().currentUser
+
+        dataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val map = snapshot.value as Map<*,*>
+            }
+
+            override fun onCancelled(firebaseError: DatabaseError) {
+                
+            }
+        })
+
+
+
 
         if (user == null) {
             favoButton.visibility = View.INVISIBLE
@@ -38,6 +49,8 @@ class QuestionDetailActivity : AppCompatActivity() {
         }
 
     }
+
+
 
 
     private val mEventListener = object : ChildEventListener {
@@ -113,22 +126,20 @@ class QuestionDetailActivity : AppCompatActivity() {
             }
         }
 
-        favoButton.setOnClickListener {
 
+        favoButton.setOnClickListener {
 
             val dataBaseReference = FirebaseDatabase.getInstance().reference
             val user = FirebaseAuth.getInstance().currentUser
-            val favoRef = dataBaseReference.child(Favorite).child(user!!.uid)
+            val favoriteRef = dataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid)
 
             val data = HashMap<String,String>()
-            data[mQuestion.genre.toString()] = mQuestion.questionUid
+            data["genre"] = mQuestion.genre.toString()
 
-            favoRef.setValue(data)
-
+            favoriteRef.setValue(data)
 
         }
 
-        val dataBaseReference = FirebaseDatabase.getInstance().reference
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
     }
