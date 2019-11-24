@@ -21,7 +21,10 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
 
-    val dataBaseReference = FirebaseDatabase.getInstance().reference
+    private val dataBaseReference = FirebaseDatabase.getInstance().reference
+    private var mIsFavorite = false
+
+
 
 
     override fun onResume() {
@@ -29,20 +32,27 @@ class QuestionDetailActivity : AppCompatActivity() {
 
         val user = FirebaseAuth.getInstance().currentUser
 
-        dataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid).addListenerForSingleValueEvent(object : ValueEventListener {
+        dataBaseReference.child(Favorite).child(user!!.uid).addListenerForSingleValueEvent(object : ValueEventListener {
+
             override fun onDataChange(snapshot: DataSnapshot) {
-                val map = snapshot.value as Map<*,*>
+                val data = snapshot.value as Map<*, *>
+                if(data != null) {
+                    for ((key, value) in data) {
+                        if(key.toString() == mQuestion.questionUid){
+                            mIsFavorite = true
+                            Log.d("kotlintest", key.toString() + ":" + value.toString())
+                        }
+                    }
+                }
             }
 
-            override fun onCancelled(firebaseError: DatabaseError) {
-                
-            }
+            override fun onCancelled(firebaseError: DatabaseError) {}
         })
 
-
-
-
+        Log.d("kotlintest",mIsFavorite.toString())
         if (user == null) {
+            favoButton.visibility = View.INVISIBLE
+        } else if(user !=null && mIsFavorite==true) {
             favoButton.visibility = View.INVISIBLE
         } else {
             favoButton.visibility = View.VISIBLE
