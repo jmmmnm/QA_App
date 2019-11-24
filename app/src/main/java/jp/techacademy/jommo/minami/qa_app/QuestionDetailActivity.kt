@@ -40,24 +40,25 @@ class QuestionDetailActivity : AppCompatActivity() {
                     for ((key, value) in data) {
                         if(key.toString() == mQuestion.questionUid){
                             mIsFavorite = true
-                            Log.d("kotlintest", key.toString() + ":" + value.toString())
+
+                            if (user == null) {
+                                favoButton.visibility = View.INVISIBLE
+                            } else if(mIsFavorite==true) {
+                                favoButton.visibility = View.VISIBLE
+                                favoButton.text = "お気に入りを解除"
+                            } else {
+                                favoButton.visibility = View.VISIBLE
+                                favoButton.text = "お気に入りに登録"
+                            }
+
                         }
                     }
                 }
             }
 
-            override fun onCancelled(firebaseError: DatabaseError) {}
+            override fun onCancelled(databaseError: DatabaseError) {
+            }
         })
-
-        Log.d("kotlintest",mIsFavorite.toString())
-        if (user == null) {
-            favoButton.visibility = View.INVISIBLE
-        } else if(user !=null && mIsFavorite==true) {
-            favoButton.visibility = View.INVISIBLE
-        } else {
-            favoButton.visibility = View.VISIBLE
-        }
-
     }
 
 
