@@ -20,48 +20,59 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mQuestion: Question
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
+    private lateinit var mFavoriteRef:DatabaseReference
 
     private val dataBaseReference = FirebaseDatabase.getInstance().reference
+    val user = FirebaseAuth.getInstance().currentUser
+
     private var mIsFavorite = false
-
-
 
 
     override fun onResume() {
         super.onResume()
 
-        val user = FirebaseAuth.getInstance().currentUser
+        mIsFavorite = false
+        mFavoriteRef = dataBaseReference.child(Favorite).child(user!!.uid)
+        mFavoriteRef.addChildEventListener(fEventListener)
 
-        dataBaseReference.child(Favorite).child(user!!.uid).addListenerForSingleValueEvent(object : ValueEventListener {
 
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val data = snapshot.value as Map<*, *>
-                if(data != null) {
-                    for ((key, value) in data) {
-                        if(key.toString() == mQuestion.questionUid){
-                            mIsFavorite = true
+    }
 
-                            if (user == null) {
-                                favoButton.visibility = View.INVISIBLE
-                            } else if(mIsFavorite==true) {
-                                favoButton.visibility = View.VISIBLE
-                                favoButton.text = "お気に入りを解除"
-                            } else {
-                                favoButton.visibility = View.VISIBLE
-                                favoButton.text = "お気に入りに登録"
-                            }
+    private val fEventListener = object : ChildEventListener {
+        override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
 
-                        }
+            val data = dataSnapshot.value as Map<*, *>?
+
+            val favoriteUid = dataSnapshot.key ?: ""
+
+            if(data != null) {
+                for ((key, value) in data) {
+                      if(mQuestion.questionUid==favoriteUid){
+                        mIsFavorite=true
                     }
                 }
             }
 
-            override fun onCancelled(databaseError: DatabaseError) {
+            if(user==null){
+                favoButton.visibility = View.INVISIBLE
+            }else if(mIsFavorite==false){
+                favoButton.visibility = View.VISIBLE
+                favoButton.text = "お気に入りに追加"
+            }else {
+                favoButton.visibility = View.VISIBLE
+                favoButton.text = "お気に入りを解除"
             }
-        })
+
+        }
+
+        override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) { }
+
+        override fun onChildRemoved(dataSnapshot: DataSnapshot) { }
+
+        override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) { }
+
+        override fun onCancelled(databaseError: DatabaseError) { }
     }
-
-
 
 
     private val mEventListener = object : ChildEventListener {
@@ -86,22 +97,15 @@ class QuestionDetailActivity : AppCompatActivity() {
             mAdapter.notifyDataSetChanged()
         }
 
-        override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) {
+        override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) { }
 
-        }
+        override fun onChildRemoved(dataSnapshot: DataSnapshot) { }
 
-        override fun onChildRemoved(dataSnapshot: DataSnapshot) {
+        override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) { }
 
-        }
-
-        override fun onChildMoved(dataSnapshot: DataSnapshot, s: String?) {
-
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {
-
-        }
+        override fun onCancelled(databaseError: DatabaseError) { }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,8 +121,6 @@ class QuestionDetailActivity : AppCompatActivity() {
         mAdapter = QuestionDetailListAdapter(this, mQuestion)
         listView.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
-
-
 
 
         fab.setOnClickListener {
@@ -145,15 +147,20 @@ class QuestionDetailActivity : AppCompatActivity() {
             val favoriteRef = dataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid)
 
             val data = HashMap<String,String>()
+
             data["genre"] = mQuestion.genre.toString()
 
-            favoriteRef.setValue(data)
-
+            if(mIsFavorite==true){
+                favoriteRef.removeValue()
+            }else{
+                favoriteRef.setValue(data)
+            }
         }
+
 
         mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
-    }
 
+    }
 
 }

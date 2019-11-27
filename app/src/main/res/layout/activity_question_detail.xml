@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:text="お気に入り"
+        android:text="お気に入りへ登録"
         android:layout_margin="16dp"
         />
 
