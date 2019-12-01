@@ -21,21 +21,26 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
     private lateinit var mFavoriteRef:DatabaseReference
-
-    private val dataBaseReference = FirebaseDatabase.getInstance().reference
-    val user = FirebaseAuth.getInstance().currentUser
+    private lateinit var mDataBaseReference: DatabaseReference
 
     private var mIsFavorite = false
+
 
 
     override fun onResume() {
         super.onResume()
 
-        mIsFavorite = false
-        mFavoriteRef = dataBaseReference.child(Favorite).child(user!!.uid)
-        mFavoriteRef.addChildEventListener(fEventListener)
+        val user = FirebaseAuth.getInstance().currentUser
 
+        if(user==null){
+            favoButton.visibility = View.INVISIBLE
 
+        }else{
+            mFavoriteRef = mDataBaseReference.child(Favorite).child(user!!.uid)
+            mFavoriteRef.addChildEventListener(fEventListener)
+            favoButton.visibility = View.VISIBLE
+            mIsFavorite = false
+        }
     }
 
     private val fEventListener = object : ChildEventListener {
@@ -46,23 +51,20 @@ class QuestionDetailActivity : AppCompatActivity() {
             val favoriteUid = dataSnapshot.key ?: ""
 
             if(data != null) {
+
                 for ((key, value) in data) {
                       if(mQuestion.questionUid==favoriteUid){
-                        mIsFavorite=true
+                        mIsFavorite = true
                     }
+                    Log.d("kotlintest",mIsFavorite.toString())
                 }
             }
 
-            if(user==null){
-                favoButton.visibility = View.INVISIBLE
-            }else if(mIsFavorite==false){
-                favoButton.visibility = View.VISIBLE
+            if(mIsFavorite==false){
                 favoButton.text = "お気に入りに追加"
             }else {
-                favoButton.visibility = View.VISIBLE
                 favoButton.text = "お気に入りを解除"
             }
-
         }
 
         override fun onChildChanged(dataSnapshot: DataSnapshot, s: String?) { }
@@ -117,11 +119,13 @@ class QuestionDetailActivity : AppCompatActivity() {
 
         title = mQuestion.title
 
+
         // ListViewの準備
         mAdapter = QuestionDetailListAdapter(this, mQuestion)
         listView.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
 
+        mDataBaseReference = FirebaseDatabase.getInstance().reference
 
         fab.setOnClickListener {
             // ログイン済みのユーザーを取得する
@@ -142,9 +146,8 @@ class QuestionDetailActivity : AppCompatActivity() {
 
         favoButton.setOnClickListener {
 
-            val dataBaseReference = FirebaseDatabase.getInstance().reference
             val user = FirebaseAuth.getInstance().currentUser
-            val favoriteRef = dataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid)
+            val favoriteRef = mDataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid)
 
             val data = HashMap<String,String>()
 
@@ -152,13 +155,17 @@ class QuestionDetailActivity : AppCompatActivity() {
 
             if(mIsFavorite==true){
                 favoriteRef.removeValue()
+                mIsFavorite=false
+                favoButton.text = "お気に入りに追加"
             }else{
                 favoriteRef.setValue(data)
+                mIsFavorite=true
+                favoButton.text = "お気に入りを解除"
             }
         }
 
 
-        mAnswerRef = dataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
+        mAnswerRef = mDataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
 
     }
