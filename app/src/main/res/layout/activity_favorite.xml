@@ -9,7 +9,7 @@
     android:paddingRight="16dp"
     android:paddingTop="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="jp.techacademy.jommo.minami.qa_app.FavoriteActivity"
+    tools:context="jp.techacademy.jommo.minami.qa_app.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
     <ListView

@@ -169,7 +169,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 1:趣味を既定の選択とする
         if(mGenre == 0) {
             onNavigationItemSelected(navigationView.menu.getItem(0))
-        }
+        }else if(mGenre == 100){
+
+        }else {}
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -205,6 +207,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else if (id == R.id.nav_compter) {
             mToolbar.title = "コンピューター"
             mGenre = 4
+        } else if (id == R.id.nav_favorite) {
+            mToolbar.title = "お気に入り一覧"
+            mGenre =100
+
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user == null) {
+                // ログインしていなければログイン画面に遷移させる
+                val intent = Intent(applicationContext, LoginActivity::class.java)
+                startActivity(intent)
+            }
+
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
