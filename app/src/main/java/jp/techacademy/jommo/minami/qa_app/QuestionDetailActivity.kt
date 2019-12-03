@@ -21,7 +21,7 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var mAdapter: QuestionDetailListAdapter
     private lateinit var mAnswerRef: DatabaseReference
     private lateinit var mFavoriteRef:DatabaseReference
-    private lateinit var mDataBaseReference: DatabaseReference
+    private lateinit var mDatabaseReference: DatabaseReference
 
     private var mIsFavorite = false
 
@@ -36,7 +36,7 @@ class QuestionDetailActivity : AppCompatActivity() {
             favoButton.visibility = View.INVISIBLE
 
         }else{
-            mFavoriteRef = mDataBaseReference.child(Favorite).child(user!!.uid)
+            mFavoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid)
             mFavoriteRef.addChildEventListener(fEventListener)
             favoButton.visibility = View.VISIBLE
             mIsFavorite = false
@@ -56,7 +56,6 @@ class QuestionDetailActivity : AppCompatActivity() {
                       if(mQuestion.questionUid==favoriteUid){
                         mIsFavorite = true
                     }
-                    Log.d("kotlintest",mIsFavorite.toString())
                 }
             }
 
@@ -125,7 +124,7 @@ class QuestionDetailActivity : AppCompatActivity() {
         listView.adapter = mAdapter
         mAdapter.notifyDataSetChanged()
 
-        mDataBaseReference = FirebaseDatabase.getInstance().reference
+        mDatabaseReference = FirebaseDatabase.getInstance().reference
 
         fab.setOnClickListener {
             // ログイン済みのユーザーを取得する
@@ -147,7 +146,7 @@ class QuestionDetailActivity : AppCompatActivity() {
         favoButton.setOnClickListener {
 
             val user = FirebaseAuth.getInstance().currentUser
-            val favoriteRef = mDataBaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid)
+            val favoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid).child(mQuestion.questionUid)
 
             val data = HashMap<String,String>()
 
@@ -165,7 +164,7 @@ class QuestionDetailActivity : AppCompatActivity() {
         }
 
 
-        mAnswerRef = mDataBaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
+        mAnswerRef = mDatabaseReference.child(ContentsPATH).child(mQuestion.genre.toString()).child(mQuestion.questionUid).child(AnswersPATH)
         mAnswerRef.addChildEventListener(mEventListener)
 
     }

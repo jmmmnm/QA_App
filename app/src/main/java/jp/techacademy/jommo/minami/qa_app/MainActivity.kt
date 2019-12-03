@@ -14,13 +14,10 @@ import android.view.MenuItem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import android.support.design.widget.Snackbar
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import android.util.Base64
+import android.util.Log
 import android.widget.ListView
+import com.google.firebase.database.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -31,6 +28,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mListView: ListView
     private lateinit var mQuestionArrayList: ArrayList<Question>
     private lateinit var mAdapter: QuestionsListAdapter
+    private lateinit var mFavoriteRef:DatabaseReference
 
     private var mGenreRef: DatabaseReference? = null
 
@@ -169,8 +167,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 1:趣味を既定の選択とする
         if(mGenre == 0) {
             onNavigationItemSelected(navigationView.menu.getItem(0))
-        }else if(mGenre == 100){
-
+        }else if(mGenre == 5){
+            onNavigationItemSelected(navigationView.menu.getItem(4))
         }else {}
     }
 
@@ -209,13 +207,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mGenre = 4
         } else if (id == R.id.nav_favorite) {
             mToolbar.title = "お気に入り一覧"
-            mGenre =100
+            mGenre = 5
 
             val user = FirebaseAuth.getInstance().currentUser
             if (user == null) {
                 // ログインしていなければログイン画面に遷移させる
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 startActivity(intent)
+            }else{
+                mFavoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid)
+                mFavoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+
+                        val data = snapshot.value as Map<*,*>?
+
+                        if(data != null) {
+                            for ((key, value) in data) {
+                                Log.d("kotlintest", key.toString()+ ":" + value.toString())
+                            }
+                        }
+
+                    }
+                    override fun onCancelled(snapshot: DatabaseError) {
+                    }
+                })
+
             }
 
         }
