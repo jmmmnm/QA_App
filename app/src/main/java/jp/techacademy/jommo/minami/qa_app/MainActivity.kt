@@ -226,10 +226,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 Log.d("kotlintest", key.toString()+ ":" + value.toString())
                             }
                         }
-
                     }
                     override fun onCancelled(snapshot: DatabaseError) {
                     }
+                    
                 })
 
             }
