@@ -37,13 +37,13 @@ class QuestionDetailActivity : AppCompatActivity() {
 
         }else{
             mFavoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid)
-            mFavoriteRef.addChildEventListener(fEventListener)
+            mFavoriteRef.addChildEventListener(mFavoriteEventListener)
             favoButton.visibility = View.VISIBLE
             mIsFavorite = false
         }
     }
 
-    private val fEventListener = object : ChildEventListener {
+    private val mFavoriteEventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
 
             val data = dataSnapshot.value as Map<*, *>?
