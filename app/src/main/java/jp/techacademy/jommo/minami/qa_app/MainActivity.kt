@@ -230,7 +230,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onResume() {
         super.onResume()
+        val user = FirebaseAuth.getInstance().currentUser
+
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
+        if (user == null) {
+            navigationView.menu.findItem(R.id.nav_favorite).isVisible = false
+        } else {
+            navigationView.menu.findItem(R.id.nav_favorite).isVisible = true
+        }
 
         // 1:趣味を既定の選択とする
         if(mGenre == 0) {
@@ -257,6 +264,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
         val id = item.itemId
 
         if (id == R.id.nav_hobby) {
@@ -272,17 +280,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mToolbar.title = "コンピューター"
             mGenre = 4
         } else if (id == R.id.nav_favorite) {
-
-            val user = FirebaseAuth.getInstance().currentUser
-
-            if (user == null) {
-                // ログインしていなければログイン画面に遷移させる
-                val intent = Intent(applicationContext, LoginActivity::class.java)
-                startActivity(intent)
-            }else{
-                mToolbar.title = "お気に入り一覧"
-                mGenre = 5
-            }
+            mToolbar.title = "お気に入り一覧"
+            mGenre = 5
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -311,5 +310,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    
+
 }
