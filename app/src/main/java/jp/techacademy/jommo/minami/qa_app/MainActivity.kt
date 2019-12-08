@@ -16,8 +16,10 @@ import com.google.firebase.auth.FirebaseUser
 import android.support.design.widget.Snackbar
 import android.util.Base64
 import android.util.Log
+import android.view.View
 import android.widget.ListView
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -197,6 +199,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+
+
         // ナビゲーションドロワーの設定
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(this, drawer, mToolbar, R.string.app_name, R.string.app_name)
@@ -268,8 +272,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mToolbar.title = "コンピューター"
             mGenre = 4
         } else if (id == R.id.nav_favorite) {
-            mToolbar.title = "お気に入り一覧"
-            mGenre = 5
+
+            val user = FirebaseAuth.getInstance().currentUser
+
+            if (user == null) {
+                // ログインしていなければログイン画面に遷移させる
+                val intent = Intent(applicationContext, LoginActivity::class.java)
+                startActivity(intent)
+            }else{
+                mToolbar.title = "お気に入り一覧"
+                mGenre = 5
+            }
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -289,10 +302,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val user = FirebaseAuth.getInstance().currentUser
             mFavoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid)
             mFavoriteRef.addChildEventListener(mFavoriteEventListener)
+            fab.hide()
         }else {
             mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
             mGenreRef!!.addChildEventListener(mEventListener)
+            fab.show()
         }
         return true
     }
+
+    
 }
