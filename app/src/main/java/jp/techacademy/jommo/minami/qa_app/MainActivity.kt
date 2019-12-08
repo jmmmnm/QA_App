@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var mToolbar: Toolbar
     private var mGenre = 0
+    private var mFavoriteGenre = 0
 
     private lateinit var mDatabaseReference: DatabaseReference
     private lateinit var mListView: ListView
@@ -37,20 +38,51 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             val map= dataSnapshot.value as Map<String, String>
 
-            if(map != null) {
-                for ((key, value) in map) {
-                    Log.d("kotlintest", key.toString() + ":" + value.toString())
-                }
-            }
-
             val genre = map["genre"] ?: ""
             val favoriteUid = dataSnapshot.key ?: ""
 
+            Log.d("kotlintest",genre.toString()+" , "+favoriteUid.toString())
 
+            val mFavoriteRef = mDatabaseReference.child(ContentsPATH).child(genre).child(favoriteUid)
+            mFavoriteGenre  =Integer.parseInt(genre)
 
+            mFavoriteRef.addListenerForSingleValueEvent(object :ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val map = snapshot.value as Map<String, String>
 
+                    val title = map["title"] ?: ""
+                    val body = map["body"] ?: ""
+                    val name = map["name"] ?: ""
+                    val uid = map["uid"] ?: ""
+                    val imageString = map["image"] ?: ""
+                    val bytes =
+                            if (imageString.isNotEmpty()) {
+                                Base64.decode(imageString, Base64.DEFAULT)
+                            } else {
+                                byteArrayOf()
+                            }
 
+                    val answerArrayList = ArrayList<Answer>()
+                    val answerMap = map["answers"] as Map<String, String>?
+                    if (answerMap != null) {
+                        for (key in answerMap.keys) {
+                            val temp = answerMap[key] as Map<String, String>
+                            val answerBody = temp["body"] ?: ""
+                            val answerName = temp["name"] ?: ""
+                            val answerUid = temp["uid"] ?: ""
+                            val answer = Answer(answerBody, answerName, answerUid, key)
+                            answerArrayList.add(answer)
+                        }
+                    }
 
+                    val question = Question(title, body, name, uid, snapshot.key ?: "",
+                            mFavoriteGenre, bytes, answerArrayList)
+                    mQuestionArrayList.add(question)
+                    mAdapter.notifyDataSetChanged()
+
+                }
+                override fun onCancelled(firebaseErrow : DatabaseError) {}
+            })
 
 
         }
@@ -237,12 +269,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mGenre = 4
         } else if (id == R.id.nav_favorite) {
             mToolbar.title = "お気に入り一覧"
-            mGenre = 0
-            val user = FirebaseAuth.getInstance().currentUser
-
-                mFavoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid)
-                mFavoriteRef.addChildEventListener(mFavoriteEventListener)
-
+            mGenre = 5
         }
 
         val drawer = findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -257,9 +284,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (mGenreRef != null) {
             mGenreRef!!.removeEventListener(mEventListener)
         }
-        mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
-        mGenreRef!!.addChildEventListener(mEventListener)
 
+        if(mGenre==5){
+            val user = FirebaseAuth.getInstance().currentUser
+            mFavoriteRef = mDatabaseReference.child(Favorite).child(user!!.uid)
+            mFavoriteRef.addChildEventListener(mFavoriteEventListener)
+        }else {
+            mGenreRef = mDatabaseReference.child(ContentsPATH).child(mGenre.toString())
+            mGenreRef!!.addChildEventListener(mEventListener)
+        }
         return true
     }
 }
